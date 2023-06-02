@@ -1,0 +1,21 @@
+p {
+    /* 이것이 주석입니다. */
+    color: blue;
+    font-size: 2em;
+}
+.disabled-link {
+    color: red;
+    font-size: 2em;
+}
+
+#subscribe {
+    color: magenta;
+}
+
+input[type="email"] {
+    border: 2px solid tomato;
+}
+
+a:hover {
+    color: green
+}
