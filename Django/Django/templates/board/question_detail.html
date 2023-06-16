@@ -6,15 +6,34 @@
             <div class="card my-3">
                 <div class="card-body">
                     <div class="card-text" style="white-space: pre-line;">{{ question.content }}</div>
-                    <div class="justify-content-end">
-                        <div class="badge bg-light text-dark p-2">
-                            {{ question.created_at }}
+                    <div class="d-flex justify-content-end">
+                        {% if question.modified_at %}
+                        <div class="badge bg-light text-dark p-2 text-start mx-3">
+                            <div class="mb-2">modified at</div>
+                            <div>{{ question.modified_at }}</div>
                         </div>
+                        {% endif %}
+                        <div class="badge bg-light text-dark p-2 text-start">
+                            <div class="mb-2">{{ question.author.username }}</div>
+                            <div>{{ question.created_at }}</div>
+                        </div>
+                    </div>
+                    <div class="my-3">
+                        <a href="javascript:void(0)" data-uri="{% url 'board:question_vote' question.id %}"
+                        class="recommend btn btn-sm btn-outline-secondary">추천
+                            <span class="badge rounded-pill bg-success">{{ question.voter.count }}</span>
+                        </a>
+                        {% if request.user == question.author %}
+                        <a href="{% url 'board:question_modify' question.id %}" 
+                        class="btn btn-sm btn-outline-secondary">수정</a>
+                        <a href="javascript:void(0)" class="delete btn btn-sm btn-outline-secondary"
+                        data-uri="{% url 'board:question_delete' question.id %}">삭제</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         <!-- 답변 -->
-        {% if question.answer_set %}
+        {% if question.answer_set.count == 0 %}
             <h5 class="border-bottom my-3 py-2">아직 작성된 답변이 없습니다.</h5>
         {% else %}
             <h5 class="border-bottom my-3 py-2">{{ question.answer_set.count }}개의 답변이 있습니다.</h5>
@@ -24,9 +43,29 @@
             <div class="card-body">
                 <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
                 <div class="d-flex justify-content-end">
-                    <div class="badge bg-light text-dark p-2">
-                        {{ answer.created_at }}
+                    {% if answer.modified_at %}
+                        <div class="badge bg-light text-dark p-2 text-start mx-3">
+                            <div class="mb-2">modified at</div>
+                            <div>{{ answer.modified_at }}</div>
+                        </div>
+                    {% endif %}
+                    <div class="badge bg-light text-dark p-2 text-start">
+                        <div class="mb-2">{{ answer.author.username }}</div>
+                        <div>{{ answer.created_at }}</div>
                     </div>
+                </div>
+                <div class="my-3">
+                    <a href="javascript:void(0)" data-uri="{% url 'board:answer_vote' answer.id %}"
+                    class="recommend btn btn-sm btn-outline-secondary">추천
+                        <span class="badge rounded-pill bg-success">{{ answer.voter.count }}</span>
+                    </a>
+
+                    {% if request.user == answer.author %}
+                    <a href="{% url 'board:answer_modify' answer.id %}" 
+                    class="btn btn-sm btn-outline-secondary">수정</a>
+                    <a href="#" class="delete btn btn-sm btn-outline-secondary"
+                    data-uri="{% url 'board:answer_delete' answer.id %}">삭제</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -49,9 +88,29 @@
             {% endif %}
             <div class="mb-3">
                 <label for="content" class="form-label">답변내용</label>
-                <textarea name="content" id="content" class="form-control" rows="10"></textarea>
+                <textarea {% if not user.is_authenticated %} disabled {% endif %} name="content" id="content" class="form-control" rows="10"></textarea>
             </div>
             <input type="submit" value="답변등록" class="btn btn-primary">
         </form>
     </div> 
+    {% endblock %}
+    {% block script %}
+    <script type="text/javascript">
+    const delete_elements = document.getElementsByClassName('delete');
+    Array.from(delete_elements).forEach(function(element) {
+        element.addEventListener('click', function() {
+            if(confirm('정말로 삭제하시겠습니까?')) {
+                location.href = this.dataset.uri;
+            };
+        });
+    });
+    const recommend_elements = document.getElementsByClassName("recommend");
+    Array.from(recommend_elements).forEach(function(element) {
+        element.addEventListener('click', function() {
+            if(confirm('정말로 추천하시겠습니까?')) {
+                location.href = this.dataset.uri;
+            };
+        });
+    });
+    </script>
     {% endblock %}
